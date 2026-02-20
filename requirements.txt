@@ -3,7 +3,6 @@ pandas
 scikit-learn
 matplotlib
 scipy
-seaborn
 tensorflow
 flask
 opencv-python
