@@ -91,7 +91,7 @@ model.summary()
 # ===============================
 
 checkpoint = ModelCheckpoint(
-    "best_model.h5",
+    "best_model.keras",
     monitor='val_accuracy',
     save_best_only=True,
     verbose=1
@@ -125,6 +125,6 @@ print(f"\nTest Accuracy: {accuracy * 100:.2f}%")
 # 9️⃣ Save Final Model
 # ===============================
 
-model.save("Blood_Cell.h5")
+model.save("Blood_Cell.keras")
 
 print("\nModel saved successfully as Blood_Cell.h5")

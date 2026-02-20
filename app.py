@@ -7,7 +7,7 @@ from tensorflow.keras.models import load_model
 app = Flask(__name__)
 
 # Load trained model
-model = load_model("Blood_Cell.h5")
+model = load_model("Blood_Cell.keras")
 
 class_labels = ['eosinophil', 'lymphocyte', 'monocyte', 'neutrophil']
 
