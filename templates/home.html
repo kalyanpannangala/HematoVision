@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HematoVision - Blood Cell Classification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #2d0a4e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background blood cells */
+        .bg-cell {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .cell-1 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c41e3a);
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .cell-2 {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, #4ecdc4, #2ecc71);
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .cell-3 {
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c41e3a);
+            bottom: 15%;
+            left: 15%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) translateX(0px);
+            }
+            50% {
+                transform: translateY(-30px) translateX(20px);
+            }
+        }
+
+        /* Blood flow lines animation */
+        .flow-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.3), transparent);
+            animation: flow 3s linear infinite;
+        }
+
+        .flow-1 {
+            width: 300px;
+            height: 3px;
+            top: 25%;
+            left: -300px;
+            animation-delay: 0s;
+        }
+
+        .flow-2 {
+            width: 250px;
+            height: 2px;
+            top: 75%;
+            right: -250px;
+            animation-delay: 1s;
+        }
+
+        @keyframes flow {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(100vw);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 107, 107, 0.1);
+            border-radius: 25px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #c41e3a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            border: 3px dashed rgba(255, 107, 107, 0.3);
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(76, 205, 196, 0.05));
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .file-input-label:hover {
+            border-color: rgba(255, 107, 107, 0.6);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(76, 205, 196, 0.1));
+            transform: translateY(-2px);
+        }
+
+        .file-input-label:active {
+            transform: translateY(0px);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .file-input-text {
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .file-input-hint {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .file-name-display {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: rgba(76, 205, 196, 0.1);
+            border-radius: 8px;
+            color: #4ecdc4;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .file-name-display.active {
+            display: block;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #ff6b6b, #c41e3a);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .info-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 107, 107, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b6b, #c41e3a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .card {
+                padding: 40px 25px;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated background elements -->
+<div class="bg-cell cell-1"></div>
+<div class="bg-cell cell-2"></div>
+<div class="bg-cell cell-3"></div>
+<div class="flow-line flow-1"></div>
+<div class="flow-line flow-2"></div>
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>HematoVision</h1>
+            <div class="subtitle">Blood Cell Classification</div>
+            <div class="tagline">Powered by Advanced Transfer Learning</div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="form-group">
+                <div class="file-input-wrapper">
+                    <input type="file" name="file" id="fileInput" accept="image/*" required>
+                    <label for="fileInput" class="file-input-label">
+                        <div>
+                            <div class="upload-icon">📁</div>
+                            <div class="file-input-text">Choose an Image</div>
+                            <div class="file-input-hint">Click to upload or drag and drop</div>
+                        </div>
+                    </label>
+                    <div class="file-name-display" id="fileName"></div>
+                </div>
+            </div>
+
+            <button type="submit">Analyze Blood Cell</button>
+        </form>
+
+        <div class="info-section">
+            <div class="info-item">
+                <div class="info-number">4</div>
+                <div class="info-label">Cell Types</div>
+            </div>
+            <div class="info-item">
+                <div class="info-number">98%</div>
+                <div class="info-label">Accuracy</div>
+            </div>
+            <div class="info-item">
+                <div class="info-number">AI</div>
+                <div class="info-label">Powered</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileLabel = document.querySelector('.file-input-label');
+    const fileNameDisplay = document.getElementById('fileName');
+
+    // File input change event
+    fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const fileName = this.files[0].name;
+            fileNameDisplay.textContent = `✓ ${fileName} selected`;
+            fileNameDisplay.classList.add('active');
+        }
+    });
+
+    // Drag and drop
+    fileLabel.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'rgba(255, 107, 107, 0.6)';
+        this.style.background = 'linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(76, 205, 196, 0.15))';
+    });
+
+    fileLabel.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'rgba(255, 107, 107, 0.3)';
+        this.style.background = 'linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(76, 205, 196, 0.05))';
+    });
+
+    fileLabel.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'rgba(255, 107, 107, 0.3)';
+        this.style.background = 'linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(76, 205, 196, 0.05))';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+</script>
+
+</body>
+</html>

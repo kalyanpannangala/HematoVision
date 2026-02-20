@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result - HematoVision</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #2d0a4e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated background elements */
+        .bg-cell {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .cell-1 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c41e3a);
+            top: 5%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .cell-2 {
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle at 30% 30%, #4ecdc4, #2ecc71);
+            bottom: 20%;
+            left: 10%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-40px) rotate(10deg);
+            }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .particle-1 {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 107, 107, 0.4);
+            top: 20%;
+            left: 30%;
+            animation: drift 4s infinite;
+        }
+
+        .particle-2 {
+            width: 6px;
+            height: 6px;
+            background: rgba(76, 205, 196, 0.4);
+            top: 60%;
+            right: 20%;
+            animation: drift 5s infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translate(50px, 50px);
+                opacity: 0.1;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 107, 107, 0.1);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .image-container {
+            position: relative;
+            margin-bottom: 40px;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.2);
+            animation: imageSlideIn 0.8s ease-out 0.2s backwards;
+        }
+
+        @keyframes imageSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .image-container:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-label {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #c41e3a);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 5;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .prediction-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 35px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(76, 205, 196, 0.1));
+            border-radius: 15px;
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .prediction-text {
+            text-align: left;
+        }
+
+        .prediction-label {
+            font-size: 0.9rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .prediction-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b6b, #c41e3a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .confidence-section {
+            margin-bottom: 35px;
+        }
+
+        .confidence-label {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: rgba(200, 200, 200, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #c41e3a);
+            border-radius: 10px;
+            width: 98%;
+            animation: fillBar 1.2s ease-out;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes fillBar {
+            from {
+                width: 0%;
+            }
+            to {
+                width: 98%;
+            }
+        }
+
+        .cell-info {
+            background: linear-gradient(135deg, rgba(76, 205, 196, 0.1), rgba(46, 204, 113, 0.1));
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .cell-info-title {
+            font-weight: 700;
+            color: #4ecdc4;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .cell-info-text {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .cell-descriptions {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(100, 100, 150, 0.05);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .cell-descriptions strong {
+            color: #ff6b6b;
+        }
+
+        .action-section {
+            display: flex;
+            gap: 15px;
+            margin-top: 35px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 107, 107, 0.1);
+        }
+
+        a, button {
+            flex: 1;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #c41e3a);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(76, 205, 196, 0.15);
+            color: #4ecdc4;
+            border: 2px solid #4ecdc4;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(76, 205, 196, 0.25);
+            transform: translateY(-3px);
+        }
+
+        .cell-types-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .cell-type {
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05), rgba(76, 205, 196, 0.05));
+            border-radius: 10px;
+            border: 1px solid rgba(200, 200, 200, 0.2);
+            font-size: 0.85rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .cell-type:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(76, 205, 196, 0.1));
+        }
+
+        .cell-type-name {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .cell-type-desc {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        @media (max-width: 600px) {
+            .result-card {
+                padding: 30px 20px;
+            }
+
+            .prediction-value {
+                font-size: 2rem;
+            }
+
+            .cell-types-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-section {
+                flex-direction: column;
+            }
+
+            .action-section a, .action-section button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated background elements -->
+<div class="bg-cell cell-1"></div>
+<div class="bg-cell cell-2"></div>
+<div class="particle particle-1"></div>
+<div class="particle particle-2"></div>
+
+<div class="container">
+    <div class="result-card">
+        <!-- Image Display -->
+        <div class="image-container">
+            <div class="image-label">📸 Analysis</div>
+            <img src="{{ image_path }}" alt="Uploaded Blood Cell Image">
+        </div>
+
+        <!-- Prediction Result -->
+        <div class="result-title">Analysis Result</div>
+        <div class="prediction-result">
+            <div class="prediction-text">
+                <div class="prediction-label">Detected Cell Type</div>
+                <div class="prediction-value">{{ prediction }}</div>
+            </div>
+        </div>
+
+        <!-- Confidence Score -->
+        <div class="confidence-section">
+            <div class="confidence-label">Model Confidence</div>
+            <div class="confidence-bar">
+                <div class="confidence-fill"></div>
+            </div>
+        </div>
+
+        <!-- Cell Type Information -->
+        <div class="cell-info">
+            <div class="cell-info-title">📊 Cell Classification</div>
+            <div class="cell-info-text">
+                Your blood sample has been analyzed using advanced AI-powered image recognition. The detected cell type is classified with high accuracy.
+            </div>
+        </div>
+
+        <!-- Cell Types Reference -->
+        <div class="cell-types-grid">
+            <div class="cell-type">
+                <div class="cell-type-name">🔴 Neutrophil</div>
+                <div class="cell-type-desc">Most abundant WBC, fights infections</div>
+            </div>
+            <div class="cell-type">
+                <div class="cell-type-name">🟠 Eosinophil</div>
+                <div class="cell-type-desc">Combats parasites and allergies</div>
+            </div>
+            <div class="cell-type">
+                <div class="cell-type-name">🟡 Monocyte</div>
+                <div class="cell-type-desc">Immune response and inflammation</div>
+            </div>
+            <div class="cell-type">
+                <div class="cell-type-name">🔵 Lymphocyte</div>
+                <div class="cell-type-desc">Adaptive immunity and antibodies</div>
+            </div>
+        </div>
+
+        <!-- Action Section -->
+        <div class="action-section">
+            <a href="/" class="btn-primary">↻ Analyze Another Image</a>
+            <button class="btn-secondary" onclick="window.print()">🖨️ Print Result</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add some interactivity on load
+    window.addEventListener('load', function() {
+        document.querySelector('.result-card').style.animation = 'slideUp 0.8s ease-out forwards';
+    });
+</script>
+
+</body>
+</html>
